@@ -1,46 +1,19 @@
 package cz.daniellinda.trixie.client;
 
 import cz.daniellinda.trixie.log.Logger;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
 
 import java.io.*;
+import java.net.URL;
 
 public class HttpClient {
     public static boolean download(String url) {
-        HttpResponse response;
-        BufferedInputStream bis;
-        BufferedOutputStream bos;
-        String filePath = "src/main/java/cz/daniellinda/trixie/client/files/download.zip";
-        int inByte;
-        //Http request
-        try (CloseableHttpClient client = HttpClients.createDefault()) {
-            response = client.execute(new HttpGet(url));
-        } catch (IOException e) {
-            Logger.saveLog(e);
-            return false;
-        }
-        if (response.getStatusLine().getStatusCode() != 200) {
-            Logger.saveLog(response.getStatusLine().getReasonPhrase());
-            return false;
-        }
-        //Downloading the content
-        try {
-            bis = new BufferedInputStream(response.getEntity().getContent());
-        } catch (IOException e) {
-            Logger.saveLog(e);
-            return false;
-        }
-        try {
-            bos = new BufferedOutputStream(new FileOutputStream(filePath));
-        } catch (FileNotFoundException e) {
-            Logger.saveLog(e);
-            return false;
-        }
-        try {
-            inByte = bis.read();
+        byte[] dataBuffer = new byte[1024];
+        int bytesRead;
+        try (BufferedInputStream in = new BufferedInputStream(new URL(url).openStream());
+             FileOutputStream fileOutputStream = new FileOutputStream("src/main/java/cz/daniellinda/trixie/client/files/download.zip")) {
+            while ((bytesRead = in.read(dataBuffer, 0, 1024)) != -1) {
+                fileOutputStream.write(dataBuffer, 0, bytesRead);
+            }
         } catch (IOException e) {
             Logger.saveLog(e);
             return false;
