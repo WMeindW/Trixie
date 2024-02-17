@@ -6,6 +6,11 @@ import java.io.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+import org.w3c.dom.*;
+import org.xml.sax.SAXException;
+
+import javax.xml.parsers.*;
+
 public class Parser {
     public static boolean unzip() {
         /*
@@ -43,6 +48,21 @@ public class Parser {
     }
 
     public static boolean parseXml() {
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        try {
+            DocumentBuilder builder = factory.newDocumentBuilder();
+            File xmlFile = new File("src/main/java/cz/daniellinda/trixie/client/files/download/20210331_OB_573060_UZSZ.xml");
+            Document doc = builder.parse(xmlFile);
+            doc.getDocumentElement().normalize();
+            Node obec = doc.getElementsByTagName("vf:Obec").item(0);
+            for (int i = 0; i < obec.getChildNodes().getLength(); i++) {
+                Node child = obec.getChildNodes().item(i);
+                System.out.println(child.getNodeName() + " " + child.getTextContent());
+            }
+        } catch (ParserConfigurationException | IOException | SAXException e) {
+            return false;
+        }
+
         return true;
     }
 }

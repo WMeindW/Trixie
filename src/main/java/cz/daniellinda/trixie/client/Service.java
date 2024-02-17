@@ -4,10 +4,7 @@ public class Service {
     public static void start() {
         if (HttpClient.download("https://www.smartform.cz/download/kopidlno.xml.zip"))
             if (Parser.unzip())
-                if (Parser.parseXml())
-                    saveToDatabase();
-
-
+                System.out.println(Parser.parseXml());
     }
 
     private static void saveToDatabase() {

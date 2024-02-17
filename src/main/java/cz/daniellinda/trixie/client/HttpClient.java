@@ -7,6 +7,8 @@ import java.net.URL;
 
 public class HttpClient {
     public static boolean download(String url) {
+        if (new File("src/main/java/cz/daniellinda/trixie/client/files/download.zip").exists())
+            return true;
         byte[] dataBuffer = new byte[1024];
         int bytesRead;
         try (BufferedInputStream in = new BufferedInputStream(new URL(url).openStream());
