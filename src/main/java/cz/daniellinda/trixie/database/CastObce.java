@@ -37,4 +37,14 @@ public class CastObce {
     public void setKodObce(String kodObce) {
         this.kodObce = kodObce;
     }
+
+    @Override
+    public String toString() {
+        return "CastObce{" +
+                "id=" + id +
+                ", nazev='" + nazev + '\'' +
+                ", kod='" + kod + '\'' +
+                ", kodObce='" + kodObce + '\'' +
+                '}';
+    }
 }

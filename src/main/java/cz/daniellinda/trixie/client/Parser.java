@@ -17,7 +17,6 @@ import org.xml.sax.SAXException;
 import javax.xml.parsers.*;
 
 public class Parser {
-    private static String obceKod;
 
     public static boolean unzip() {
         File dir = new File("src/main/java/cz/daniellinda/trixie/client/files/download/");
@@ -80,14 +79,28 @@ public class Parser {
                 if (child.getNodeName().equals("obi:Nazev"))
                     ob.setNazev(child.getTextContent());
             }
-            obceKod = ob.getKod();
             obce.add(ob);
         }
         return obce;
     }
 
     private static List<CastObce> parseCastObce(Document doc) {
-        LinkedList<CastObce> castObce = new LinkedList<>();
-        return castObce;
+        LinkedList<CastObce> castObci = new LinkedList<>();
+        NodeList castiNodes = doc.getElementsByTagName("vf:CastObce");
+        for (int i = 0; i < castiNodes.getLength(); i++) {
+            CastObce castObce = new CastObce();
+            Node castNode = castiNodes.item(i);
+            for (int j = 0; j < castNode.getChildNodes().getLength(); j++) {
+                Node child = castNode.getChildNodes().item(j);
+                if (child.getNodeName().equals("coi:Kod"))
+                    castObce.setKod(child.getTextContent());
+                if (child.getNodeName().equals("coi:Nazev"))
+                    castObce.setNazev(child.getTextContent());
+                if (child.getNodeName().equals("coi:Obec"))
+                    castObce.setKodObce(child.getChildNodes().item(1).getTextContent());
+            }
+            castObci.add(castObce);
+        }
+        return castObci;
     }
 }
