@@ -1,11 +1,13 @@
 package cz.daniellinda.trixie.client;
 
+import cz.daniellinda.trixie.database.CastObce;
 import cz.daniellinda.trixie.database.Controller;
 import cz.daniellinda.trixie.database.Obce;
 import cz.daniellinda.trixie.log.Logger;
 
 import java.io.*;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -15,6 +17,7 @@ import org.xml.sax.SAXException;
 import javax.xml.parsers.*;
 
 public class Parser {
+    private static String obceKod;
 
     public static boolean unzip() {
         File dir = new File("src/main/java/cz/daniellinda/trixie/client/files/download/");
@@ -49,32 +52,42 @@ public class Parser {
     }
 
     public static boolean parseXml() {
-        LinkedList<Obce> obce = new LinkedList<>();
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         try {
             DocumentBuilder builder = factory.newDocumentBuilder();
             File xmlFile = new File("src/main/java/cz/daniellinda/trixie/client/files/download/20210331_OB_573060_UZSZ.xml");
             Document doc = builder.parse(xmlFile);
             doc.getDocumentElement().normalize();
-            NodeList obceNodes = doc.getElementsByTagName("vf:Obec");
-            for (int i = 0; i < obceNodes.getLength(); i++) {
-                Node obnode = obceNodes.item(i);
-                Obce ob = new Obce();
-                for (int j = 0; j < obnode.getChildNodes().getLength(); j++) {
-                    Node child = obnode.getChildNodes().item(j);
-                    if (child.getNodeName().equals("obi:Kod"))
-                        ob.setKod(child.getTextContent());
-                    if (child.getNodeName().equals("obi:Nazev"))
-                        ob.setNazev(child.getTextContent());
-                }
-                obce.add(ob);
-            }
-            Controller.saveObce(obce);
+            Controller.saveObce(parseObce(doc));
+            Controller.saveCastObce(parseCastObce(doc));
         } catch (ParserConfigurationException | IOException | SAXException e) {
             Logger.saveLog(e);
             return false;
         }
-
         return true;
+    }
+
+    private static List<Obce> parseObce(Document doc) {
+        NodeList obceNodes = doc.getElementsByTagName("vf:Obec");
+        LinkedList<Obce> obce = new LinkedList<>();
+        for (int i = 0; i < obceNodes.getLength(); i++) {
+            Node obnode = obceNodes.item(i);
+            Obce ob = new Obce();
+            for (int j = 0; j < obnode.getChildNodes().getLength(); j++) {
+                Node child = obnode.getChildNodes().item(j);
+                if (child.getNodeName().equals("obi:Kod"))
+                    ob.setKod(child.getTextContent());
+                if (child.getNodeName().equals("obi:Nazev"))
+                    ob.setNazev(child.getTextContent());
+            }
+            obceKod = ob.getKod();
+            obce.add(ob);
+        }
+        return obce;
+    }
+
+    private static List<CastObce> parseCastObce(Document doc) {
+        LinkedList<CastObce> castObce = new LinkedList<>();
+        return castObce;
     }
 }

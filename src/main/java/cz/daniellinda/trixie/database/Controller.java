@@ -12,15 +12,27 @@ public class Controller {
     @Autowired
     private ObceRep obceRep;
 
-    private static ObceRep rep;
+    private static ObceRep orep;
+
+    @Autowired
+    private CastObceRep castObceRepo;
+
+    private static CastObceRep crep;
 
     @PostConstruct
     private void init() {
-        rep = obceRep;
+        orep = obceRep;
+        orep.deleteAll();
+        crep = castObceRepo;
+        crep.deleteAll();
     }
 
     public static void saveObce(List<Obce> iterable) {
-        rep.saveAll(iterable);
+        orep.saveAll(iterable);
+    }
+
+    public static void saveCastObce(List<CastObce> iterable) {
+        crep.saveAll(iterable);
     }
 
 }
