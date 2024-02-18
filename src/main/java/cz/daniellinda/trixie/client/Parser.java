@@ -1,8 +1,11 @@
 package cz.daniellinda.trixie.client;
 
+import cz.daniellinda.trixie.database.Controller;
+import cz.daniellinda.trixie.database.Obce;
 import cz.daniellinda.trixie.log.Logger;
 
 import java.io.*;
+import java.util.LinkedList;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -12,10 +15,8 @@ import org.xml.sax.SAXException;
 import javax.xml.parsers.*;
 
 public class Parser {
+
     public static boolean unzip() {
-        /*
-            Code copied from digital ocean /tutorials
-        */
         File dir = new File("src/main/java/cz/daniellinda/trixie/client/files/download/");
         if (!dir.exists()) dir.mkdirs();
         FileInputStream fis;
@@ -48,18 +49,29 @@ public class Parser {
     }
 
     public static boolean parseXml() {
+        LinkedList<Obce> obce = new LinkedList<>();
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         try {
             DocumentBuilder builder = factory.newDocumentBuilder();
             File xmlFile = new File("src/main/java/cz/daniellinda/trixie/client/files/download/20210331_OB_573060_UZSZ.xml");
             Document doc = builder.parse(xmlFile);
             doc.getDocumentElement().normalize();
-            Node obec = doc.getElementsByTagName("vf:Obec").item(0);
-            for (int i = 0; i < obec.getChildNodes().getLength(); i++) {
-                Node child = obec.getChildNodes().item(i);
-                System.out.println(child.getNodeName() + " " + child.getTextContent());
+            NodeList obceNodes = doc.getElementsByTagName("vf:Obec");
+            for (int i = 0; i < obceNodes.getLength(); i++) {
+                Node obnode = obceNodes.item(i);
+                Obce ob = new Obce();
+                for (int j = 0; j < obnode.getChildNodes().getLength(); j++) {
+                    Node child = obnode.getChildNodes().item(j);
+                    if (child.getNodeName().equals("obi:Kod"))
+                        ob.setKod(child.getTextContent());
+                    if (child.getNodeName().equals("obi:Nazev"))
+                        ob.setNazev(child.getTextContent());
+                }
+                obce.add(ob);
             }
+            Controller.saveObce(obce);
         } catch (ParserConfigurationException | IOException | SAXException e) {
+            Logger.saveLog(e);
             return false;
         }
 
